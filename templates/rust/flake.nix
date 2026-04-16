@@ -20,14 +20,6 @@
           else "--bin"
         }
         ${pkgs.git}/bin/git branch -m main
-        ${
-          if (!(options.disable_direnv or false))
-          then ''
-            echo 'use flake' >> .envrc
-            echo -e '\n.direnv\n' >> .gitignore
-          ''
-          else ""
-        }
       '';
   };
 }

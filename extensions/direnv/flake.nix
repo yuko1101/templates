@@ -12,8 +12,17 @@
         mkdir -p $out
         cp -r ${src}/. $out
 
-        echo 'use flake' >> $out/.envrc
-        echo -e '\n.direnv\n' >> $out/.gitignore
+        cd $out
+
+        if [ -f .envrc ]; then
+          chmod +w .envrc
+        fi
+        echo 'use flake' >> .envrc
+
+        if [ -f .gitignore ]; then
+          chmod +w .gitignore
+        fi
+        echo -e '\n.direnv\n' >> .gitignore
       '';
   };
 }

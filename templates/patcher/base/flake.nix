@@ -27,13 +27,6 @@
           buildInputs = [
             inputs.git-patcher.packages.${system}.default
           ];
-
-          shellHook = ''
-            if [ ! -d upstream ]; then
-              URL="$(${pkgs.git}/bin/git config -f .gitmodules submodule.upstream.url)"
-              ${pkgs.git}/bin/git submodule add "$URL" upstream
-            fi
-          '';
         };
 
         packages.src = inputs.git-patcher.lib.applyPatches {

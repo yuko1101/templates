@@ -22,7 +22,7 @@
         if [ -f .gitignore ]; then
           chmod +w .gitignore
         fi
-        echo -e '\n.direnv\n' >> .gitignore
+        echo -e '\n.direnv' >> .gitignore
       '';
   };
 }

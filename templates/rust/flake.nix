@@ -19,7 +19,7 @@
           then "--lib"
           else "--bin"
         }
-        ${pkgs.git}/bin/git branch -m main
+        rm .git -rf
       '';
   };
 }

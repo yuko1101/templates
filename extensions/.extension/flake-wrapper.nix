@@ -1,6 +1,6 @@
 {
   inputs = {
-    src.url = ./src;
+    src.url = "path:%SRC%";
     extension.url = ./extension;
   };
   outputs = inputs: let

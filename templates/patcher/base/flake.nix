@@ -27,6 +27,8 @@
           buildInputs = [
             inputs.git-patcher.packages.${system}.default
           ];
+
+          GIT_PATCHER_CONFIG = ./patcher.toml;
         };
 
         packages.src = inputs.git-patcher.lib.applyPatches {

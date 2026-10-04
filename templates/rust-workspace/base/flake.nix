@@ -28,7 +28,13 @@
         craneLib = (crane.mkLib pkgs).overrideToolchain custom-rust-bin;
 
         root = ./.;
-        src = craneLib.cleanCargoSource root;
+        src = lib.fileset.toSource {
+          inherit root;
+          fileset = lib.fileset.unions [
+            (craneLib.fileset.commonCargoSources root)
+          ];
+        };
+
         commonArgs = {
           inherit src;
           strictDeps = true;
@@ -45,48 +51,13 @@
             inherit cargoArtifacts;
           };
 
-        rootCargoToml = builtins.fromTOML (builtins.readFile "${root}/Cargo.toml");
-
-        localDeps = crate: let
-          crateDeps = (builtins.fromTOML (builtins.readFile "${crate}/Cargo.toml")).dependencies or {};
-          parsedDeps = lib.mapAttrs (_: dep:
-            if lib.isAttrs dep && lib.hasAttr "path" dep
-            then crate + "/${dep.path}"
-            else null)
-          crateDeps;
-          deps = lib.filter (dep: dep != null) (lib.attrValues parsedDeps);
-          recursiveDeps = (lib.concatMap localDeps deps) ++ deps;
-        in
-          recursiveDeps;
-
-        requiredCrateFiles = let
-          crates = rootCargoToml.workspace.members or [];
-          files = lib.map (crate: root + "/${crate}/Cargo.toml") crates;
-        in
-          files;
-
-        # TODO: generate dummy src/lib.rs for non-dependency crates
-        fileSetForCrate = crate: let
-          deps = localDeps crate;
-          fileset = lib.fileset.unions ([
-              (root + "/Cargo.toml")
-              (root + "/Cargo.lock")
-              (craneLib.fileset.commonCargoSources crate)
-            ]
-            ++ (lib.map craneLib.fileset.commonCargoSources deps) ++ requiredCrateFiles);
-          src = lib.fileset.toSource {
-            inherit root fileset;
-          };
-        in
-          src;
-
         buildCrate = crate: let
           path = root + "/crates/${crate}";
         in
           craneLib.buildPackage (individualCrateArgs
             // {
+              inherit src;
               inherit (craneLib.crateNameFromCargoToml {src = path;}) pname version;
-              src = fileSetForCrate path;
               cargoExtraArgs = "-p ${crate}";
             });
       in {
